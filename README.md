@@ -6,6 +6,14 @@ A brief description on how to install my custom powershell terminal.
 
 Clone this repository to start with the installation.
 
+### Execution Policy
+
+Maybe there will be some problems with the executions policies, to solve it run:
+
+```ps1
+Set-ExecutionPolicy Unrestricted
+```
+
 ### Install font
 
 It is required to have a nerd font to use all the icons. Here, I am using **Caskaydia Font**. To install it, open the files and click install as shown in the image:
