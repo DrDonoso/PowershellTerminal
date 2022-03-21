@@ -3,14 +3,8 @@ function gitb($1) {
     git push --set-upstream origin $1
 }
 
-function repos {
-    Set-Location C:\Repos
-}
-
-function touch($1) {
-    New-Item $1
-}
-
-function test {
-    Set-Location C:\
+function gitcp($1) {
+    git add .
+    git commit -m $1
+    git push
 }
