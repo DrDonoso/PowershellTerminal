@@ -41,6 +41,23 @@ Install it with:
 Install-Module PSReadLine -Force
 ```
 
+### Install PSFzf
+
+[PSFzf](https://github.com/kelleyma49/PSFzf) is a [fzf](https://github.com/junegunn/fzf) wrapper.
+
+First, install fzf with chocolatey or scoop:
+
+```ps1
+choco install fzf
+```
+
+And then, install PSFzf:
+
+```ps1
+Install-Module PSFzf
+```
+
+
 ### Install oh-my-posh
 
 We need [oh-my-posh](https://ohmyposh.dev/).
