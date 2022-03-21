@@ -24,6 +24,15 @@ This module displays directory listing color and icons.
 Install-Module -Name Terminal-Icons -Repository PSGallery
 ```
 
+### Install PSReadLine
+
+We will need PSReadLine for autocompletion and predictive IntelliSense.
+Install it with:
+
+```ps1
+Install-Module PSReadLine -Force
+```
+
 ### Install oh-my-posh
 
 We need [oh-my-posh](https://ohmyposh.dev/).
