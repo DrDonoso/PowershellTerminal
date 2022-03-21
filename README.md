@@ -26,11 +26,11 @@ Install-Module -Name Terminal-Icons -Repository PSGallery
 
 ### Install oh-my-posh
 
-First of all we need [oh-my-posh](https://ohmyposh.dev/).
+We need [oh-my-posh](https://ohmyposh.dev/).
 
 ```ps1
 winget install JanDeDobbeleer.OhMyPosh
 ```
 
-Run the **install.ps1** script to create the profile and add the oh-my-posh prompt and add the alias.
-Then, reload the terminal to reload $PATH and apply changes.
+Then, run the **install.ps1** script to create the profile and add the oh-my-posh prompt and add the alias.
+Reload the terminal to reload $PATH and apply changes.
