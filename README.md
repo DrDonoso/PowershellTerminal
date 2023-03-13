@@ -57,6 +57,11 @@ And then, install PSFzf:
 Install-Module PSFzf
 ```
 
+### Install gawk
+
+```ps1
+choco install gawk
+```
 
 ### Install oh-my-posh
 
