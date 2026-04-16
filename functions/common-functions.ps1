@@ -1,5 +1,5 @@
 function repos {
-    Set-Location C:\Repos
+    Set-Location Z:\Repos
 }
 
 function touch($1) {
