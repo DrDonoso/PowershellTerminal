@@ -21,3 +21,36 @@ function kubesetns () {
     kubectl config set-context --current --namespace=$ns
     Write-Host -BackgroundColor White -ForegroundColor Black "Namespace: $ns"
 }
+
+function kubelogs() {
+    Write-Host -BackgroundColor White -ForegroundColor Black "Select the pod to view logs:"
+    $pod = & kubectl get pods -o wide | fzf --height 30% --layout reverse | gawk '{print $1}'
+    if ($pod -eq "") {
+        Write-Host -BackgroundColor Red -ForegroundColor White "No pod selected."
+        return
+    }
+    Write-Host -BackgroundColor White -ForegroundColor Black "Fetching logs for pod: $pod"
+    kubectl logs $pod --tail=100
+}
+
+function kubelogsf() {
+    Write-Host -BackgroundColor White -ForegroundColor Black "Select the pod to view logs with follow:"
+    $pod = & kubectl get pods -o wide | fzf --height 30% --layout reverse | gawk '{print $1}'
+    if ($pod -eq "") {
+        Write-Host -BackgroundColor Red -ForegroundColor White "No pod selected."
+        return
+    }
+    Write-Host -BackgroundColor White -ForegroundColor Black "Fetching logs for pod: $pod"
+    kubectl logs $pod --tail=100 -f
+}
+
+function kubedescribepod() {
+    Write-Host -BackgroundColor White -ForegroundColor Black "Select the pod to describe:"
+    $pod = & kubectl get pods -o wide | fzf --height 30% --layout reverse | gawk '{print $1}'
+    if ($pod -eq "") {
+        Write-Host -BackgroundColor Red -ForegroundColor White "No pod selected."
+        return
+    }
+    Write-Host -BackgroundColor White -ForegroundColor Black "Describing pod: $pod"
+    kubectl describe pod $pod
+}
