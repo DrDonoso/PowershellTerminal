@@ -21,6 +21,13 @@ function gitcb() {
     git checkout $branch
 }
 
+function gitcba() {
+    git fetch
+    $branch = & git branch -a | fzf --height 30% --layout reverse
+    $branch = $branch.Trim() -replace '^remotes/origin/', ''
+    git checkout $branch
+}
+
 function gitclean() {
     git fetch --prune
 

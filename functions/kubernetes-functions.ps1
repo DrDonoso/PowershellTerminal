@@ -54,3 +54,35 @@ function kubedescribepod() {
     Write-Host -BackgroundColor White -ForegroundColor Black "Describing pod: $pod"
     kubectl describe pod $pod
 }
+
+function kubeenter() {
+    Write-Host -BackgroundColor White -ForegroundColor Black "Select the pod to enter:"
+    $pod = & kubectl get pods -o wide | fzf --height 30% --layout reverse | gawk '{print $1}'
+    if ($pod -eq "") {
+        Write-Host -BackgroundColor Red -ForegroundColor White "No pod selected."
+        return
+    }
+    Write-Host -BackgroundColor White -ForegroundColor Black "Entering pod: $pod"
+    kubectl exec -it $pod -- sh
+}
+
+function kubeportforward() {
+    Write-Host -BackgroundColor White -ForegroundColor Black "Select the pod to port-forward:"
+    $pod = & kubectl get pods -o wide | fzf --height 30% --layout reverse | gawk '{print $1}'
+    if ($pod -eq "") {
+        Write-Host -BackgroundColor Red -ForegroundColor White "No pod selected."
+        return
+    }
+    Write-Host -BackgroundColor White -ForegroundColor Black "Select the remote port:"
+    $remotePort = & kubectl get pod $pod -o jsonpath='{range .spec.containers[*].ports[*]}{.containerPort}{"\n"}{end}' | fzf --height 30% --layout reverse
+    if ($remotePort -eq "") {
+        Write-Host -BackgroundColor Red -ForegroundColor White "No port selected."
+        return
+    }
+    $localPort = Read-Host "Enter local port (default: $remotePort)"
+    if ($localPort -eq "") {
+        $localPort = $remotePort
+    }
+    Write-Host -BackgroundColor White -ForegroundColor Black "Port-forwarding pod: $pod on ${localPort}:${remotePort}"
+    kubectl port-forward $pod ${localPort}:${remotePort}
+}
