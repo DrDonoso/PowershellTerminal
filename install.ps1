@@ -1,12 +1,3 @@
-Write-Host -BackgroundColor Blue -ForegroundColor Black "Setting execution policy (CurrentUser = Unrestricted)..." -NoNewline
-try {
-    Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted -Force
-    Write-Host -BackgroundColor Green -ForegroundColor Black "   Done"
-}
-catch {
-    Write-Host -BackgroundColor Yellow -ForegroundColor Black "   Skipped ($($_.Exception.Message))"
-}
-
 $documentsPath = [Environment]::GetFolderPath('MyDocuments')
 $profileDir = Join-Path $documentsPath "WindowsPowerShell"
 

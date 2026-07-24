@@ -1,41 +1,37 @@
 $ErrorActionPreference = 'Stop'
 
-# Friendly name => winget package id
+# Friendly name => chocolatey package id
 $packages = [ordered]@{
-    'Git'                = 'Git.Git'
-    'Telegram'           = 'Telegram.TelegramDesktop'
-    'Bitwarden'          = 'Bitwarden.Bitwarden'
-    'Visual Studio Code' = 'Microsoft.VisualStudioCode'
-    'Docker Desktop'     = 'Docker.DockerDesktop'
-    'Brave Browser'      = 'Brave.Brave'
-    'GitHub Copilot CLI' = 'GitHub.Copilot'
-    'GitHub Copilot App' = 'GitHub.CopilotApp'
-    'Node.js (LTS)'      = 'OpenJS.NodeJS.LTS'
-    'Python 3.13'        = 'Python.Python.3.13'
-    'GitHub CLI'         = 'GitHub.cli'
-    'Azure CLI'          = 'Microsoft.AzureCLI'
-    'GnuPG'              = 'GnuPG.GnuPG'
-    'WSL'                = 'Microsoft.WSL'
-    'fzf'                = 'junegunn.fzf'
-    'Oh My Posh'         = 'JanDeDobbeleer.OhMyPosh'
+    'gawk' = 'gawk'
 }
 
-if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-    Write-Host "winget was not found. Install 'App Installer' from the Microsoft Store and run this script again." -ForegroundColor Red
+# Refresh PATH so a Chocolatey install done earlier in this session (winget.ps1) is visible
+$env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' +
+            [System.Environment]::GetEnvironmentVariable('Path', 'User')
+
+$chocoRoot = $env:ChocolateyInstall
+if (-not $chocoRoot) { $chocoRoot = Join-Path $env:ProgramData 'chocolatey' }
+
+$choco = (Get-Command choco -ErrorAction SilentlyContinue).Source
+if (-not $choco) {
+    $chocoExe = Join-Path $chocoRoot 'bin\choco.exe'
+    if (Test-Path $chocoExe) { $choco = $chocoExe }
+}
+if (-not $choco) {
+    Write-Host "Chocolatey (choco) was not found. Install it from https://chocolatey.org/install and run this script again." -ForegroundColor Red
     return
 }
 
 function Test-Installed {
     param([string]$Id)
-    winget list --id $Id --exact --accept-source-agreements *> $null
-    return ($LASTEXITCODE -eq 0)
+    return (Test-Path (Join-Path $chocoRoot "lib\$Id"))
 }
 
 $results = [ordered]@{}
 
 Write-Host ""
-Write-Host "Installing tools with winget" -ForegroundColor Cyan
-Write-Host "----------------------------" -ForegroundColor Cyan
+Write-Host "Installing tools with Chocolatey" -ForegroundColor Cyan
+Write-Host "--------------------------------" -ForegroundColor Cyan
 
 foreach ($name in $packages.Keys) {
     $id = $packages[$name]
@@ -47,8 +43,8 @@ foreach ($name in $packages.Keys) {
         continue
     }
 
-    winget install --id $id --exact --source winget --accept-source-agreements --accept-package-agreements --silent *> $null
-    if ($LASTEXITCODE -eq 0) {
+    & $choco install $id -y --no-progress *> $null
+    if ($LASTEXITCODE -eq 0 -or $LASTEXITCODE -eq 3010) {
         Write-Host "installed" -ForegroundColor Green
         $results[$name] = 'Installed'
     }

@@ -1,27 +1,42 @@
 $ErrorActionPreference = 'Stop'
 
-# Friendly name => chocolatey package id
+# Friendly name => winget package id
 $packages = [ordered]@{
-    'gawk' = 'gawk'
+    'Git'                = 'Git.Git'
+    'Telegram'           = 'Telegram.TelegramDesktop'
+    'Bitwarden'          = 'Bitwarden.Bitwarden'
+    'Visual Studio Code' = 'Microsoft.VisualStudioCode'
+    'Docker Desktop'     = 'Docker.DockerDesktop'
+    'Brave Browser'      = 'Brave.Brave'
+    'GitHub Copilot CLI' = 'GitHub.Copilot'
+    'GitHub Copilot App' = 'GitHub.CopilotApp'
+    'Node.js (LTS)'      = 'OpenJS.NodeJS.LTS'
+    'Python 3.13'        = 'Python.Python.3.13'
+    'GitHub CLI'         = 'GitHub.cli'
+    'Azure CLI'          = 'Microsoft.AzureCLI'
+    'GnuPG'              = 'GnuPG.GnuPG'
+    'WSL'                = 'Microsoft.WSL'
+    'Chocolatey'         = 'Chocolatey.Chocolatey'
+    'fzf'                = 'junegunn.fzf'
+    'Oh My Posh'         = 'JanDeDobbeleer.OhMyPosh'
 }
 
-if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-    Write-Host "Chocolatey (choco) was not found. Install it from https://chocolatey.org/install and run this script again." -ForegroundColor Red
+if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+    Write-Host "winget was not found. Install 'App Installer' from the Microsoft Store and run this script again." -ForegroundColor Red
     return
 }
 
 function Test-Installed {
     param([string]$Id)
-    $chocoRoot = $env:ChocolateyInstall
-    if (-not $chocoRoot) { $chocoRoot = Join-Path $env:ProgramData 'chocolatey' }
-    return (Test-Path (Join-Path $chocoRoot "lib\$Id"))
+    winget list --id $Id --exact --accept-source-agreements *> $null
+    return ($LASTEXITCODE -eq 0)
 }
 
 $results = [ordered]@{}
 
 Write-Host ""
-Write-Host "Installing tools with Chocolatey" -ForegroundColor Cyan
-Write-Host "--------------------------------" -ForegroundColor Cyan
+Write-Host "Installing tools with winget" -ForegroundColor Cyan
+Write-Host "----------------------------" -ForegroundColor Cyan
 
 foreach ($name in $packages.Keys) {
     $id = $packages[$name]
@@ -33,8 +48,8 @@ foreach ($name in $packages.Keys) {
         continue
     }
 
-    choco install $id -y --no-progress *> $null
-    if ($LASTEXITCODE -eq 0 -or $LASTEXITCODE -eq 3010) {
+    winget install --id $id --exact --source winget --accept-source-agreements --accept-package-agreements --silent *> $null
+    if ($LASTEXITCODE -eq 0) {
         Write-Host "installed" -ForegroundColor Green
         $results[$name] = 'Installed'
     }
