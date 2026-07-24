@@ -25,7 +25,7 @@ try {
     $repoName      = ($repo -split '/')[-1]
     $base          = Join-Path $tmpDir "$repoName-$branch"
     $toolsDir      = Join-Path $base 'tools'
-    $toolScripts   = @('winget.ps1', 'ps.ps1', 'choco.ps1') | ForEach-Object { Join-Path $toolsDir $_ }
+    $toolScripts   = @('winget.ps1', 'ps.ps1', 'choco.ps1', 'others.ps1') | ForEach-Object { Join-Path $toolsDir $_ }
     $installScript = Join-Path $base 'install.ps1'
     foreach ($script in ($toolScripts + $installScript)) {
         if (-not (Test-Path $script)) {
