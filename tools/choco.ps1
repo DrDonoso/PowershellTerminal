@@ -1,4 +1,7 @@
 $ErrorActionPreference = 'Stop'
+# choco reports state through exit codes; keep non-zero exits from becoming terminating
+# errors so the $LASTEXITCODE checks below work (default changed in PowerShell 7.4)
+$PSNativeCommandUseErrorActionPreference = $false
 
 # Friendly name => chocolatey package id
 $packages = [ordered]@{

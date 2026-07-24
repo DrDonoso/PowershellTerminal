@@ -1,4 +1,7 @@
 $ErrorActionPreference = 'Stop'
+# winget/choco/pip report state through exit codes; keep non-zero exits from becoming
+# terminating errors so the $LASTEXITCODE checks below work (default changed in PowerShell 7.4)
+$PSNativeCommandUseErrorActionPreference = $false
 
 Write-Host ""
 Write-Host "Installing other tools" -ForegroundColor Cyan
