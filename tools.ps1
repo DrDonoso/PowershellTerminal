@@ -16,6 +16,8 @@ $packages = [ordered]@{
     'Azure CLI'          = 'Microsoft.AzureCLI'
     'GnuPG'              = 'GnuPG.GnuPG'
     'WSL'                = 'Microsoft.WSL'
+    'fzf'                = 'junegunn.fzf'
+    'Oh My Posh'         = 'JanDeDobbeleer.OhMyPosh'
 }
 
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
