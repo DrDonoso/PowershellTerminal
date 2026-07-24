@@ -9,6 +9,7 @@ $packages = [ordered]@{
     'Docker Desktop'     = 'Docker.DockerDesktop'
     'Brave Browser'      = 'Brave.Brave'
     'GitHub Copilot CLI' = 'GitHub.Copilot'
+    'GitHub Copilot App' = 'GitHub.CopilotApp'
 }
 
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
