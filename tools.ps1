@@ -12,6 +12,10 @@ $packages = [ordered]@{
     'GitHub Copilot App' = 'GitHub.CopilotApp'
     'Node.js (LTS)'      = 'OpenJS.NodeJS.LTS'
     'Python 3.13'        = 'Python.Python.3.13'
+    'GitHub CLI'         = 'GitHub.cli'
+    'Azure CLI'          = 'Microsoft.AzureCLI'
+    'GnuPG'              = 'GnuPG.GnuPG'
+    'WSL'                = 'Microsoft.WSL'
 }
 
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
