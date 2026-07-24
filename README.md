@@ -4,7 +4,17 @@ A brief description on how to install my custom powershell terminal.
 
 ## Installation
 
-Clone this repository to start with the installation.
+You can either clone this repository, or run the bootstrap script directly from GitHub without cloning.
+
+### Quick install (no clone)
+
+Run this one-liner in PowerShell. It downloads the repository to a temporary folder, installs the base tools with winget (`tools.ps1`), runs `install.ps1`, and removes the temporary files afterwards:
+
+```ps1
+irm https://raw.githubusercontent.com/DrDonoso/PowershellTerminal/main/bootstrap.ps1 | iex
+```
+
+> Note: the prerequisites below (Nerd Font and the PowerShell modules) still need to be installed for everything to work.
 
 ### Execution Policy
 
@@ -71,5 +81,5 @@ We need [oh-my-posh](https://ohmyposh.dev/).
 winget install JanDeDobbeleer.OhMyPosh
 ```
 
-Then, run the **install.ps1** script to create the profile and add the oh-my-posh prompt and add the alias.
+Then, run the **install.ps1** script (or the [Quick install](#quick-install-no-clone) one-liner) to create the profile, add the oh-my-posh prompt and the aliases.
 Reload the terminal to reload $PATH and apply changes.
