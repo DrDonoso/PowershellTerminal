@@ -10,6 +10,8 @@ $packages = [ordered]@{
     'Brave Browser'      = 'Brave.Brave'
     'GitHub Copilot CLI' = 'GitHub.Copilot'
     'GitHub Copilot App' = 'GitHub.CopilotApp'
+    'Node.js (LTS)'      = 'OpenJS.NodeJS.LTS'
+    'Python 3.13'        = 'Python.Python.3.13'
 }
 
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
