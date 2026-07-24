@@ -8,6 +8,7 @@ $packages = [ordered]@{
     'Visual Studio Code' = 'Microsoft.VisualStudioCode'
     'Docker Desktop'     = 'Docker.DockerDesktop'
     'Brave Browser'      = 'Brave.Brave'
+    'GitHub Copilot CLI' = 'GitHub.Copilot'
 }
 
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
