@@ -32,7 +32,6 @@ try {
         }
     }
 
-    Write-Host -BackgroundColor Blue -ForegroundColor Black "Installing tools (winget)..."
     & $toolsScript
 
     Write-Host -BackgroundColor Blue -ForegroundColor Black "Installing terminal profile..."
