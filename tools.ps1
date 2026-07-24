@@ -3,7 +3,8 @@ $ErrorActionPreference = 'Stop'
 $packages = @(
     'Git.Git',
     'Telegram.TelegramDesktop',
-    'Bitwarden.Bitwarden'
+    'Bitwarden.Bitwarden',
+    'Microsoft.VisualStudioCode'
 )
 
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
