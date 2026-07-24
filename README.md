@@ -8,13 +8,13 @@ You can either clone this repository, or run the bootstrap script directly from 
 
 ### Quick install (no clone)
 
-Run this one-liner in PowerShell. It downloads the repository to a temporary folder, installs the base tools with winget (`tools.ps1`), runs `install.ps1`, and removes the temporary files afterwards:
+Run this one-liner in PowerShell. It downloads the repository to a temporary folder, installs the base tools with winget (`tools-winget.ps1`), the PowerShell modules (`tools-ps.ps1`) and the Chocolatey packages (`tools-choco.ps1`), runs `install.ps1`, and removes the temporary files afterwards:
 
 ```ps1
 irm https://raw.githubusercontent.com/DrDonoso/PowershellTerminal/main/bootstrap.ps1 | iex
 ```
 
-> Note: the prerequisites below (Nerd Font and the PowerShell modules) still need to be installed for everything to work.
+> Note: the bootstrap script now installs the Nerd Font, PowerShell modules and the rest of the prerequisites automatically. The sections below document what it does and how to install each piece manually if you prefer.
 
 ### Execution Policy
 

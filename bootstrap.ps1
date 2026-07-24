@@ -24,15 +24,15 @@ try {
 
     $repoName      = ($repo -split '/')[-1]
     $base          = Join-Path $tmpDir "$repoName-$branch"
-    $toolsScript   = Join-Path $base 'tools.ps1'
+    $toolScripts   = @('tools-winget.ps1', 'tools-ps.ps1', 'tools-choco.ps1') | ForEach-Object { Join-Path $base $_ }
     $installScript = Join-Path $base 'install.ps1'
-    foreach ($script in @($toolsScript, $installScript)) {
+    foreach ($script in ($toolScripts + $installScript)) {
         if (-not (Test-Path $script)) {
             throw "Script not found at '$script'."
         }
     }
 
-    & $toolsScript
+    foreach ($script in $toolScripts) { & $script }
 
     Write-Host -BackgroundColor Blue -ForegroundColor Black "Installing terminal profile..."
     & $installScript
