@@ -16,14 +16,19 @@ if (-not $python) {
     return
 }
 
+# Prefer pip3 (as in the repo docs); fall back to 'python -m pip' when it is not on PATH yet
+$pip3 = (Get-Command pip3 -ErrorAction SilentlyContinue).Source
+if ($pip3) { $pipExe = $pip3;   $pipArgs = @() }
+else       { $pipExe = $python; $pipArgs = @('-m', 'pip') }
+
 # Pokemon-Terminal is only distributed through pip
 Write-Host ("  {0,-20} " -f 'Pokemon-Terminal') -NoNewline
-& $python -m pip show pokemon-terminal *> $null
+& $pipExe @pipArgs show pokemon-terminal *> $null
 if ($LASTEXITCODE -eq 0) {
     Write-Host "already installed" -ForegroundColor Yellow
 }
 else {
-    & $python -m pip install --user git+https://github.com/LazoVelko/Pokemon-Terminal.git *> $null
+    & $pipExe @pipArgs install --user git+https://github.com/LazoCoder/Pokemon-Terminal.git *> $null
     if ($LASTEXITCODE -eq 0) {
         Write-Host "installed" -ForegroundColor Green
     }
