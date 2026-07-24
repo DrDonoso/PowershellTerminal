@@ -16,17 +16,6 @@ irm https://raw.githubusercontent.com/DrDonoso/PowershellTerminal/main/bootstrap
 
 The scripts install all the required tools, PowerShell modules and Chocolatey packages, install the Caskaydia Nerd Font, and create the PowerShell profile with the oh-my-posh prompt and the aliases.
 
-### Clone install
-
-If you prefer to clone the repository, run the tool scripts and then `install.ps1` from the repository folder:
-
-```ps1
-.\tools\winget.ps1
-.\tools\ps.ps1
-.\tools\choco.ps1
-.\install.ps1
-```
-
 ### Execution Policy
 
 Maybe there will be some problems with the executions policies, to solve it run:
