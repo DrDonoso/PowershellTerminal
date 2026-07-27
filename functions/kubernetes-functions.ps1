@@ -1,4 +1,4 @@
-function azaccountset() {
+﻿function azaccountset() {
     Write-Host -BackgroundColor White -ForegroundColor Black "Select the account:" 
     $account = & az account list -o table --query '[].name' | fzf --height 30% --layout reverse
     az account set -s $account

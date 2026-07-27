@@ -9,9 +9,15 @@ Write-Host -BackgroundColor Blue -ForegroundColor Black "Copying powershell prof
 Copy-Item "$PSScriptRoot\Microsoft.PowerShell_profile.ps1" "$profileDir\"
 Write-Host -BackgroundColor Green -ForegroundColor Black "   Copied"
 
-Write-Host -BackgroundColor Blue -ForegroundColor Black "Adding functions (alias)..." -NoNewline
-Get-Content "$PSScriptRoot\functions\*" >> "$profileDir\Microsoft.PowerShell_profile.ps1"
-Write-Host -BackgroundColor Green -ForegroundColor Black "   Added"
+Write-Host -BackgroundColor Blue -ForegroundColor Black "Copying functions (alias)..." -NoNewline
+$functionsDest = Join-Path $profileDir 'functions'
+if (Test-Path $functionsDest) { Remove-Item $functionsDest -Recurse -Force }
+Copy-Item "$PSScriptRoot\functions" $functionsDest -Recurse -Force
+Write-Host -BackgroundColor Green -ForegroundColor Black "   Copied"
+
+Write-Host -BackgroundColor Blue -ForegroundColor Black "Copying oh-my-posh theme..." -NoNewline
+Copy-Item "$PSScriptRoot\tonybaloney.omp.json" "$profileDir\" -Force
+Write-Host -BackgroundColor Green -ForegroundColor Black "   Copied"
 
 Write-Host -BackgroundColor Blue -ForegroundColor Black "Installing Caskaydia Nerd Fonts..." -NoNewline
 $fontsDir = Join-Path $env:LOCALAPPDATA "Microsoft\Windows\Fonts"

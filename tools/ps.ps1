@@ -2,6 +2,14 @@ $ErrorActionPreference = 'Stop'
 
 . (Join-Path $PSScriptRoot '_common.ps1')
 
+# Install modules to a non-OneDrive location so cold imports don't wait on OneDrive to hydrate
+# the files. The profile prepends this same path to $env:PSModulePath before importing them.
+$moduleRoot = Join-Path $env:LOCALAPPDATA 'PowerShellModules'
+[void](New-Item -ItemType Directory $moduleRoot -Force)
+if (";$env:PSModulePath;" -notlike "*;$moduleRoot;*") {
+    $env:PSModulePath = "$moduleRoot;$env:PSModulePath"
+}
+
 # PowerShell modules to install from the PowerShell Gallery
 $modules = @(
     'Terminal-Icons'
@@ -11,7 +19,7 @@ $modules = @(
 
 function Test-ModuleInstalled {
     param([string]$Name)
-    return [bool](Get-Module -ListAvailable -Name $Name)
+    return (Test-Path (Join-Path $moduleRoot $Name))
 }
 
 $results = [ordered]@{}
@@ -32,9 +40,9 @@ foreach ($name in $modules) {
     }
 
     $ok = Invoke-JobWithSpinner -Label $name -Work {
-        param($n)
-        Install-Module -Name $n -Scope CurrentUser -Repository PSGallery -Force -AllowClobber
-    } -ArgumentList $name
+        param($n, $dir)
+        Save-Module -Name $n -Path $dir -Repository PSGallery -Force
+    } -ArgumentList $name, $moduleRoot
     $results[$name] = if ($ok) { 'Installed' } else { 'Failed' }
 }
 
