@@ -33,3 +33,29 @@ if ($fontsInstalled -gt 0) {
 else {
     Write-Host -BackgroundColor Yellow -ForegroundColor Black "   Already installed"
 }
+
+Write-Host -BackgroundColor Blue -ForegroundColor Black "Syncing Windows Terminal settings..." -NoNewline
+try {
+    . (Join-Path $PSScriptRoot 'terminal\_terminal.ps1')
+    $repoSettings   = Join-Path $PSScriptRoot 'terminal\settings.json'
+    $targetSettings = Get-WindowsTerminalSettingsPath
+    if (-not (Test-Path $repoSettings)) {
+        Write-Host -BackgroundColor Yellow -ForegroundColor Black "   Skipped (no settings.json in repo)"
+    }
+    elseif (-not $targetSettings) {
+        Write-Host -BackgroundColor Yellow -ForegroundColor Black "   Skipped (Windows Terminal not found)"
+    }
+    else {
+        $targetDir = Split-Path $targetSettings -Parent
+        [void](New-Item -ItemType Directory $targetDir -Force)
+        if (Test-Path $targetSettings) {
+            $backup = Join-Path $targetDir ("settings.backup-{0:yyyyMMdd-HHmmss}.json" -f (Get-Date))
+            Copy-Item $targetSettings $backup -Force
+        }
+        Copy-Item $repoSettings $targetSettings -Force
+        Write-Host -BackgroundColor Green -ForegroundColor Black "   Synced"
+    }
+}
+catch {
+    Write-Host -BackgroundColor Red -ForegroundColor Black "   Failed: $($_.Exception.Message)"
+}

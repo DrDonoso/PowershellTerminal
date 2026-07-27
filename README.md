@@ -14,7 +14,7 @@ Run this one-liner in PowerShell. It downloads the repository to a temporary fol
 irm https://raw.githubusercontent.com/DrDonoso/PowershellTerminal/main/bootstrap.ps1 | iex
 ```
 
-The scripts install all the required tools, PowerShell modules and Chocolatey packages, install the Caskaydia Nerd Font, and create the PowerShell profile with the oh-my-posh prompt and the aliases.
+The scripts install all the required tools, PowerShell modules and Chocolatey packages, install the Caskaydia Nerd Font, apply the Windows Terminal `settings.json`, and create the PowerShell profile with the oh-my-posh prompt and the aliases.
 
 ### Execution Policy
 
@@ -24,13 +24,21 @@ Maybe there will be some problems with the executions policies, to solve it run:
 Set-ExecutionPolicy Unrestricted
 ```
 
-### Set the terminal font
+## Windows Terminal settings
 
-Once everything is installed, update your Windows Terminal PowerShell profile to use the **CaskaydiaCove Nerd Font** so all the icons render correctly:
+The Windows Terminal configuration is kept in [`terminal/settings.json`](terminal/settings.json).
+`install.ps1` applies it automatically, backing up the current one to
+`settings.backup-<timestamp>.json` next to it first.
 
-![Terminal-Font](assets/Terminal-Font.png)
+After tweaking Windows Terminal from the UI, capture your changes back into the repo and commit
+them:
 
-Reload the terminal to reload $PATH and apply the changes.
+```ps1
+pwsh -File terminal\export-settings.ps1
+```
+
+> The `backgroundImage` in the profile defaults is an absolute path to the Pokemon-Terminal image
+> (set by `tools/others.ps1` running `pokemon mew`), so it is machine-specific.
 
 ## Sign commits with GPG
 
