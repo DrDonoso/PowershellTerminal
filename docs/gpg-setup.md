@@ -63,3 +63,16 @@ git config gpg.program "C:/Program Files (x86)/gnupg/bin/gpg"
 > `(Get-Command gpg).Source`).
 
 From now on your commits are signed and show up as **Verified** on GitHub.
+
+## Troubleshooting the GPG agent
+
+Sometimes the GPG agent dies and Git can't connect to it (commits fail with a
+signing error). Restart it with either of these:
+
+```ps1
+gpg-connect-agent reloadagent /bye
+gpgconf --kill gpg-agent
+```
+
+The agent restarts automatically the next time it is needed, so you can sign
+again right away.
