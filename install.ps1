@@ -19,6 +19,28 @@ Write-Host -BackgroundColor Blue -ForegroundColor Black "Copying oh-my-posh them
 Copy-Item "$PSScriptRoot\tonybaloney.omp.json" "$profileDir\" -Force
 Write-Host -BackgroundColor Green -ForegroundColor Black "   Copied"
 
+Write-Host -BackgroundColor Blue -ForegroundColor Black "Disabling oh-my-posh update checks..." -NoNewline
+try {
+    $ompExe = (Get-Command oh-my-posh -ErrorAction SilentlyContinue).Source
+    if (-not $ompExe) {
+        $ompAlias = Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps\oh-my-posh.exe'
+        if (Test-Path $ompAlias) { $ompExe = $ompAlias }
+    }
+    if ($ompExe) {
+        # The upgrade notice/auto-upgrade makes oh-my-posh phone home on init, which can add
+        # several seconds to a cold shell startup. Disabling them keeps startup fast and offline.
+        & $ompExe disable notice  2>$null
+        & $ompExe disable upgrade 2>$null
+        Write-Host -BackgroundColor Green -ForegroundColor Black "   Done"
+    }
+    else {
+        Write-Host -BackgroundColor Yellow -ForegroundColor Black "   Skipped (oh-my-posh not found)"
+    }
+}
+catch {
+    Write-Host -BackgroundColor Yellow -ForegroundColor Black "   Skipped"
+}
+
 Write-Host -BackgroundColor Blue -ForegroundColor Black "Installing Caskaydia Nerd Fonts..." -NoNewline
 $fontsDir = Join-Path $env:LOCALAPPDATA "Microsoft\Windows\Fonts"
 [void](New-Item -ItemType Directory $fontsDir -Force)

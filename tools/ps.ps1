@@ -4,6 +4,8 @@ $ErrorActionPreference = 'Stop'
 
 # Install modules to a non-OneDrive location so cold imports don't wait on OneDrive to hydrate
 # the files. The profile prepends this same path to $env:PSModulePath before importing them.
+# Modules are fetched as raw .nupkg packages (see below) to avoid the PowerShellGet/NuGet
+# provider, which is old or missing on Windows PowerShell 5.1 and hangs Save-Module.
 $moduleRoot = Join-Path $env:LOCALAPPDATA 'PowerShellModules'
 [void](New-Item -ItemType Directory $moduleRoot -Force)
 if (";$env:PSModulePath;" -notlike "*;$moduleRoot;*") {
@@ -28,10 +30,6 @@ Write-Host ""
 Write-Host "Installing PowerShell modules" -ForegroundColor Cyan
 Write-Host "-----------------------------" -ForegroundColor Cyan
 
-# Make sure the PowerShell Gallery can be used without interactive prompts
-try { [void](Get-PackageProvider -Name NuGet -ForceBootstrap -ErrorAction Stop) } catch { }
-try { Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -ErrorAction Stop } catch { }
-
 foreach ($name in $modules) {
     if (Test-ModuleInstalled -Name $name) {
         Write-Host ("  {0} already installed" -f $name.PadRight(20)) -ForegroundColor Yellow
@@ -41,7 +39,30 @@ foreach ($name in $modules) {
 
     $ok = Invoke-JobWithSpinner -Label $name -Work {
         param($n, $dir)
-        Save-Module -Name $n -Path $dir -Repository PSGallery -Force
+        $ErrorActionPreference = 'Stop'
+        $ProgressPreference = 'SilentlyContinue'
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+        # A .nupkg is just a zip, so downloading and unzipping it needs no PowerShellGet/NuGet
+        # provider. On Windows PowerShell 5.1 that provider is old/missing and makes Save-Module
+        # hang on an interactive bootstrap prompt inside the job, so we avoid it entirely.
+        $tmp = Join-Path $env:TEMP ("psmod-" + [guid]::NewGuid())
+        [void](New-Item -ItemType Directory $tmp -Force)
+        try {
+            $zip = Join-Path $tmp "$n.zip"
+            Invoke-WebRequest -Uri "https://www.powershellgallery.com/api/v2/package/$n" -OutFile $zip -UseBasicParsing
+            $target = Join-Path $dir $n
+            if (Test-Path $target) { Remove-Item $target -Recurse -Force }
+            Expand-Archive -Path $zip -DestinationPath $target -Force
+            # Drop the NuGet packaging cruft so the module folder only holds the module files.
+            foreach ($junk in '_rels', 'package', '[Content_Types].xml') {
+                $p = Join-Path $target $junk
+                if (Test-Path -LiteralPath $p) { Remove-Item -LiteralPath $p -Recurse -Force }
+            }
+            Get-ChildItem $target -Filter '*.nuspec' | Remove-Item -Force
+        }
+        finally {
+            Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+        }
     } -ArgumentList $name, $moduleRoot
     $results[$name] = if ($ok) { 'Installed' } else { 'Failed' }
 }
