@@ -3,6 +3,8 @@ $ErrorActionPreference = 'Stop'
 # errors so the $LASTEXITCODE checks below work (default changed in PowerShell 7.4)
 $PSNativeCommandUseErrorActionPreference = $false
 
+. (Join-Path $PSScriptRoot '_common.ps1')
+
 # Friendly name => winget package id
 $packages = [ordered]@{
     'Git'                = 'Git.Git'
@@ -28,6 +30,7 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
     Write-Host "winget was not found. Install 'App Installer' from the Microsoft Store and run this script again." -ForegroundColor Red
     return
 }
+$winget = (Get-Command winget -ErrorAction SilentlyContinue).Source
 
 function Test-Installed {
     param([string]$Id)
@@ -43,28 +46,23 @@ Write-Host "----------------------------" -ForegroundColor Cyan
 
 foreach ($name in $packages.Keys) {
     $id = $packages[$name]
-    Write-Host ("  {0,-20} " -f $name) -NoNewline
 
     if (Test-Installed -Id $id) {
-        Write-Host "already installed" -ForegroundColor Yellow
+        Write-Host ("  {0} already installed" -f $name.PadRight(20)) -ForegroundColor Yellow
         $results[$name] = 'AlreadyInstalled'
         continue
     }
 
-    winget install --id $id --exact --source winget --accept-source-agreements --accept-package-agreements --silent *> $null
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "installed" -ForegroundColor Green
-        $results[$name] = 'Installed'
-    }
-    else {
-        Write-Host ("failed (exit {0})" -f $LASTEXITCODE) -ForegroundColor Red
-        $results[$name] = "Failed:$LASTEXITCODE"
-    }
+    $ok = Invoke-NativeWithSpinner -Label $name -FilePath $winget -Arguments @(
+        'install', '--id', $id, '--exact', '--source', 'winget',
+        '--accept-source-agreements', '--accept-package-agreements', '--silent'
+    )
+    $results[$name] = if ($ok) { 'Installed' } else { 'Failed' }
 }
 
 $installed = @($results.Keys | Where-Object { $results[$_] -eq 'Installed' })
 $already   = @($results.Keys | Where-Object { $results[$_] -eq 'AlreadyInstalled' })
-$failed    = @($results.Keys | Where-Object { $results[$_] -like 'Failed:*' })
+$failed    = @($results.Keys | Where-Object { $results[$_] -eq 'Failed' })
 
 Write-Host ""
 Write-Host "Summary" -ForegroundColor Cyan
@@ -80,9 +78,6 @@ if ($already.Count) {
 }
 if ($failed.Count) {
     Write-Host ("Failed ({0}):" -f $failed.Count) -ForegroundColor Red
-    foreach ($n in $failed) {
-        $code = $results[$n] -replace '^Failed:', ''
-        Write-Host "  x $n (exit $code)" -ForegroundColor Red
-    }
+    foreach ($n in $failed) { Write-Host "  x $n" -ForegroundColor Red }
 }
 Write-Host ""

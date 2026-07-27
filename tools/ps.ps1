@@ -1,5 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
+. (Join-Path $PSScriptRoot '_common.ps1')
+
 # PowerShell modules to install from the PowerShell Gallery
 $modules = @(
     'Terminal-Icons'
@@ -23,28 +25,22 @@ try { [void](Get-PackageProvider -Name NuGet -ForceBootstrap -ErrorAction Stop) 
 try { Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -ErrorAction Stop } catch { }
 
 foreach ($name in $modules) {
-    Write-Host ("  {0,-20} " -f $name) -NoNewline
-
     if (Test-ModuleInstalled -Name $name) {
-        Write-Host "already installed" -ForegroundColor Yellow
+        Write-Host ("  {0} already installed" -f $name.PadRight(20)) -ForegroundColor Yellow
         $results[$name] = 'AlreadyInstalled'
         continue
     }
 
-    try {
-        Install-Module -Name $name -Scope CurrentUser -Repository PSGallery -Force -AllowClobber
-        Write-Host "installed" -ForegroundColor Green
-        $results[$name] = 'Installed'
-    }
-    catch {
-        Write-Host "failed" -ForegroundColor Red
-        $results[$name] = "Failed:$($_.Exception.Message)"
-    }
+    $ok = Invoke-JobWithSpinner -Label $name -Work {
+        param($n)
+        Install-Module -Name $n -Scope CurrentUser -Repository PSGallery -Force -AllowClobber
+    } -ArgumentList $name
+    $results[$name] = if ($ok) { 'Installed' } else { 'Failed' }
 }
 
 $installed = @($results.Keys | Where-Object { $results[$_] -eq 'Installed' })
 $already   = @($results.Keys | Where-Object { $results[$_] -eq 'AlreadyInstalled' })
-$failed    = @($results.Keys | Where-Object { $results[$_] -like 'Failed:*' })
+$failed    = @($results.Keys | Where-Object { $results[$_] -eq 'Failed' })
 
 Write-Host ""
 Write-Host "Summary" -ForegroundColor Cyan
@@ -60,9 +56,6 @@ if ($already.Count) {
 }
 if ($failed.Count) {
     Write-Host ("Failed ({0}):" -f $failed.Count) -ForegroundColor Red
-    foreach ($n in $failed) {
-        $msg = $results[$n] -replace '^Failed:', ''
-        Write-Host "  x $n ($msg)" -ForegroundColor Red
-    }
+    foreach ($n in $failed) { Write-Host "  x $n" -ForegroundColor Red }
 }
 Write-Host ""

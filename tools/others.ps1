@@ -3,6 +3,8 @@ $ErrorActionPreference = 'Stop'
 # terminating errors so the $LASTEXITCODE checks below work (default changed in PowerShell 7.4)
 $PSNativeCommandUseErrorActionPreference = $false
 
+. (Join-Path $PSScriptRoot '_common.ps1')
+
 Write-Host ""
 Write-Host "Installing other tools" -ForegroundColor Cyan
 Write-Host "----------------------" -ForegroundColor Cyan
@@ -31,7 +33,7 @@ if ($pip3) { $pipExe = $pip3;   $pipArgs = @() }
 else       { $pipExe = $python; $pipArgs = @('-m', 'pip') }
 
 # Pokemon-Terminal is only distributed through pip (https://github.com/LazoCoder/Pokemon-Terminal)
-Write-Host "  Pokemon-Terminal" -ForegroundColor White
+$label = 'Pokemon-Terminal'
 
 # Detect current state. try/catch guarantees a non-zero pip exit can never silently abort the
 # script, even on a shell where $PSNativeCommandUseErrorActionPreference is not honored.
@@ -43,28 +45,13 @@ try {
 catch { $installed = $false }
 
 if ($installed) {
-    Write-Host "    already installed" -ForegroundColor Yellow
+    Write-Host ("  {0} already installed" -f $label.PadRight(20)) -ForegroundColor Yellow
 }
 else {
     # Exactly the command from the repo docs: pip3 install git+https://github.com/LazoCoder/Pokemon-Terminal.git
-    Write-Host "    installing from git+https://github.com/LazoCoder/Pokemon-Terminal.git (clones from GitHub, may take a moment)..." -ForegroundColor Cyan
-    $ok = $false
-    try {
-        # Stream pip output straight to the console so any error is always visible (never a blank 'failed')
-        & $pipExe @pipArgs install git+https://github.com/LazoCoder/Pokemon-Terminal.git
-        $ok = ($LASTEXITCODE -eq 0)
-    }
-    catch {
-        Write-Host "    $($_.Exception.Message)" -ForegroundColor Red
-        $ok = $false
-    }
-    if ($ok) {
-        Write-Host "    installed" -ForegroundColor Green
-    }
-    else {
-        Write-Host "    failed - check the pip output above" -ForegroundColor Red
-        return
-    }
+    $ok = Invoke-NativeWithSpinner -Label $label -FilePath $pipExe `
+        -Arguments (@($pipArgs) + @('install', 'git+https://github.com/LazoCoder/Pokemon-Terminal.git'))
+    if (-not $ok) { return }
 }
 
 # 'pokemon' lands in Python's Scripts folder. Depending on whether pip used --user this is the
