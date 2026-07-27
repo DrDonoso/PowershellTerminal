@@ -31,3 +31,8 @@ Once everything is installed, update your Windows Terminal PowerShell profile to
 ![Terminal-Font](assets/Terminal-Font.png)
 
 Reload the terminal to reload $PATH and apply the changes.
+
+## Sign commits with GPG
+
+See [docs/gpg-setup.md](docs/gpg-setup.md) for how to create a GPG key, add it to
+GitHub, and configure Git to sign your commits.
