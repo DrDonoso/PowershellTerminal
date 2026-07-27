@@ -11,16 +11,22 @@ Write-Host "----------------------" -ForegroundColor Cyan
 $env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' +
             [System.Environment]::GetEnvironmentVariable('Path', 'User')
 
-# Resolve a Python interpreter (installed via winget.ps1)
-$python = (Get-Command python -ErrorAction SilentlyContinue).Source
-if (-not $python) { $python = (Get-Command py -ErrorAction SilentlyContinue).Source }
+# Resolve a real Python interpreter, skipping the Microsoft Store "App execution alias" stubs under
+# WindowsApps. Those stubs print nothing and exit non-zero, which shows up as a blank 'failed'.
+function Resolve-RealCommand([string]$name) {
+    Get-Command $name -All -ErrorAction SilentlyContinue |
+        Where-Object { $_.Source -and $_.Source -notlike '*\WindowsApps\*' } |
+        Select-Object -First 1 -ExpandProperty Source
+}
+$python = Resolve-RealCommand 'python'
+if (-not $python) { $python = Resolve-RealCommand 'py' }
 if (-not $python) {
     Write-Host "  Python was not found. Install it first (tools/winget.ps1) and run this script again." -ForegroundColor Red
     return
 }
 
-# Prefer pip3 (as in the repo docs); fall back to 'python -m pip' when it is not on PATH yet
-$pip3 = (Get-Command pip3 -ErrorAction SilentlyContinue).Source
+# Prefer pip3 (as in the repo docs: 'pip3 install git+...'); fall back to '<python> -m pip'
+$pip3 = Resolve-RealCommand 'pip3'
 if ($pip3) { $pipExe = $pip3;   $pipArgs = @() }
 else       { $pipExe = $python; $pipArgs = @('-m', 'pip') }
 
@@ -42,21 +48,21 @@ if ($installed) {
 else {
     # Exactly the command from the repo docs: pip3 install git+https://github.com/LazoCoder/Pokemon-Terminal.git
     Write-Host "    installing from git+https://github.com/LazoCoder/Pokemon-Terminal.git (clones from GitHub, may take a moment)..." -ForegroundColor Cyan
-    $log = $null; $ok = $false
+    $ok = $false
     try {
-        $log = & $pipExe @pipArgs install git+https://github.com/LazoCoder/Pokemon-Terminal.git 2>&1
+        # Stream pip output straight to the console so any error is always visible (never a blank 'failed')
+        & $pipExe @pipArgs install git+https://github.com/LazoCoder/Pokemon-Terminal.git
         $ok = ($LASTEXITCODE -eq 0)
     }
     catch {
-        $log = $_.Exception.Message
+        Write-Host "    $($_.Exception.Message)" -ForegroundColor Red
         $ok = $false
     }
-    $log | ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
     if ($ok) {
         Write-Host "    installed" -ForegroundColor Green
     }
     else {
-        Write-Host "    failed - see pip output above" -ForegroundColor Red
+        Write-Host "    failed - check the pip output above" -ForegroundColor Red
         return
     }
 }
