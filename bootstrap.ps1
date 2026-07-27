@@ -39,6 +39,7 @@ try {
     & $installScript
 }
 finally {
+    Write-Host ""
     Write-Host -BackgroundColor Blue -ForegroundColor Black "Cleaning up temporary files..." -NoNewline
     Remove-Item -Path $zipPath, $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
     Write-Host -BackgroundColor Green -ForegroundColor Black "   Done"

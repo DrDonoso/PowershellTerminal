@@ -17,9 +17,19 @@ Write-Host -BackgroundColor Blue -ForegroundColor Black "Installing Caskaydia Ne
 $fontsDir = Join-Path $env:LOCALAPPDATA "Microsoft\Windows\Fonts"
 [void](New-Item -ItemType Directory $fontsDir -Force)
 $fontRegKey = "HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
+$fontsInstalled = 0
 foreach ($font in Get-ChildItem "$PSScriptRoot\fonts" -Recurse -Include '*.ttf', '*.otf') {
     $fontDest = Join-Path $fontsDir $font.Name
+    # Skip already-installed fonts: re-copying a font file that is in use by another process
+    # (e.g. Windows Terminal) fails with "the process cannot access the file".
+    if (Test-Path $fontDest) { continue }
     Copy-Item $font.FullName $fontDest -Force
     New-ItemProperty -Path $fontRegKey -Name "$($font.BaseName) (TrueType)" -Value $fontDest -PropertyType String -Force | Out-Null
+    $fontsInstalled++
 }
-Write-Host -BackgroundColor Green -ForegroundColor Black "   Installed"
+if ($fontsInstalled -gt 0) {
+    Write-Host -BackgroundColor Green -ForegroundColor Black "   Installed"
+}
+else {
+    Write-Host -BackgroundColor Yellow -ForegroundColor Black "   Already installed"
+}
